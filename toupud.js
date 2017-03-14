@@ -252,7 +252,7 @@ function mEnd() {
     needTime = needTime > 2 ? 2 : needTime;
 
     //距离公式  v*4000的平方
-    var needDis = Math.sqrt(speed * 4000);
+    var needDis = Math.sqrt(speed * 3000);
 
     //正向或者反向判断
     if(this.speedPos < 0) {
