@@ -242,13 +242,13 @@ function mEnd() {
         return;
     }
     this.endTime = new Date().valueOf();
-    if(this.endTime - this.moveTime > 50) return;
+    if(this.endTime - this.moveTime > 20) return;
     var speed;
     speed = Math.abs(this.speedPos * 3);
 
     //速度越快所用时间越短，但是移动路程更长
     //时间公式  time = v/31.1的平方根；
-    var needTime = Math.sqrt(speed/31.1);
+    var needTime = Math.sqrt(speed/10);
     needTime = needTime > 2 ? 2 : needTime;
 
     //距离公式  v*4000的平方
