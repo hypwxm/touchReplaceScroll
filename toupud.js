@@ -1,25 +1,25 @@
 /*
-* var swipper = Toupud;
-   swipper.init({
-    //要移动的元素，id或者类名class或者标签名。
-    moveEle: ".swiper-wrapper",
-    //moveEle要被拖动的方向  “ud” 上下， “lr” 左右
-    dir: "lr",
-    //移动开始回调函数
-    startCallBack:function() {},
-    //移动过程的回调函数
-    moveCallBack:function() {},
-    //触摸结束，停下来后的回调函数
-    endCallBack: function() {
-        imgScrollIndex = 0;
-        scrollLoadingImg(0, document.documentElement.clientHeight);
-    }，
-    //scrollPeak触顶或触左
-    scrollPeak: function() {},
-    //scrollPeak触底或触右
-    scrollSole: function() {}
+ * var swipper = Toupud;
+ swipper.init({
+ //要移动的元素，id或者类名class或者标签名。
+ moveEle: ".swiper-wrapper",
+ //moveEle要被拖动的方向  “ud” 上下， “lr” 左右
+ dir: "lr",
+ //移动开始回调函数
+ startCallBack:function() {},
+ //移动过程的回调函数
+ moveCallBack:function() {},
+ //触摸结束，停下来后的回调函数
+ endCallBack: function() {
+ imgScrollIndex = 0;
+ scrollLoadingImg(0, document.documentElement.clientHeight);
+ }，
+ //scrollPeak触顶或触左
+ scrollPeak: function() {},
+ //scrollPeak触底或触右
+ scrollSole: function() {}
  })
-* */
+ * */
 
 
 
@@ -37,9 +37,13 @@ Toupud.prototype = {
         this.setMoveEle(obj.moveEle);
         document.addEventListener("touchstart", function (event) {
             var target = event.target;
+            if(that.moving == true) {
+                return;
+            }
             if (DS.parentsUntil(target, that.moveEle)) {
                 that.moveDom = DS.parentsUntil(target, that.moveEle);
                 that.setMoveDir(obj.dir);
+                that.moveDom.ref = that;
                 that.moveDom.dir = that.dir;
                 that.moveDom.moveDistance = that.moveDistance;
                 //触摸结束，停下来后的回调函数
@@ -118,7 +122,7 @@ function stopMove(dir) {
 function mStart(event) {
     var that = this, _touch;
     var dir = that.getAttribute("dir");
-    var targetTouches = event.touches;
+    var targetTouches = event.targetTouches;
     _touch = targetTouches[0];
     that.touch = _touch;
     this.pointerX = _touch.clientX;
@@ -160,7 +164,7 @@ function mMove(event) {
     }
     this.moveCount++;
     var _touch, pointerX, pointerY, _dis, _disX, _disY;
-    var targetTouches = event.touches;
+    var targetTouches = event.targetTouches;
 
     _touch = targetTouches[0];
 
@@ -189,6 +193,9 @@ function mMove(event) {
         _dis = _disY;
     }
 
+    if(this.moveCount == 2) {
+        this.ref.moving = true;
+    }
 
     event.preventDefault();
     var finalPos = prevMove + _dis;
@@ -224,6 +231,7 @@ function mMove(event) {
 function mEnd() {
     this.removeEventListener("touchmove", mMove, false);
     this.removeEventListener("touchend", mEnd, false);
+    this.ref.moving = false;
 
     if(this.moveDis) {
         this.prevMove = this.moveDis;
@@ -234,19 +242,17 @@ function mEnd() {
         return;
     }
     this.endTime = new Date().valueOf();
-    if(this.endTime - this.moveTime > 20) return;
+    if(this.endTime - this.moveTime > 50) return;
     var speed;
     speed = Math.abs(this.speedPos * 3);
 
     //速度越快所用时间越短，但是移动路程更长
     //时间公式  time = v/31.1的平方根；
-    var needTime = Math.sqrt(speed/10);
+    var needTime = Math.sqrt(speed/31.1);
     needTime = needTime > 2 ? 2 : needTime;
 
     //距离公式  v*4000的平方
-    var needDis = Math.sqrt(speed * 3000);
-
-
+    var needDis = Math.sqrt(speed * 4000);
 
     //正向或者反向判断
     if(this.speedPos < 0) {
