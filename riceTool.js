@@ -310,6 +310,57 @@ DS.parentsUntil = function (selector, name) {
 };
 
 
+//获取id,参数代表id所在查询字符串中的位置,,也可以直接传参数的名称
+function getQuery(index) {
+    var href = window.location.href;
+    //如果不传值，index默认为0
+    /*if (typeof index === undefined) {
+     index = 0;
+     }*/
+    if (isNum(index)) {
+        if (href.indexOf("?") > -1) {
+            var query = href.split("?")[1];
+            if (query.indexOf("&") > -1) {
+                var querystring = query.split("&");
+                if (index > querystring.length - 1) {
+                    console.warn("can not get query what you find, please check you url is contain the query what needed");
+                    return null
+                } else {
+                    var id = querystring[index];
+                    return id.split("=")[1];
+                }
+            } else {
+                if (index > 0) {
+                    console.warn("can not get query what you find, please check you url is contain the query what needed");
+                    return null
+                } else if (index == 0) {
+                    return query.split("=")[1]
+                }
+            }
+        } else {
+            console.warn("can not get query what you find, please check you url is contain the query what needed");
+        }
+    } else if (!isNum(index)) {
+        if (href.indexOf("?") > -1) {
+            var query = href.split("?")[1];
+            if (query.indexOf(index) == -1) {
+                return
+            } else {
+                //if (query.indexOf("&") == -1) {
+                //   return query.split("=")[1];
+                //} else {
+                var queryObj = {};
+                query.split("&").forEach(function (que) {
+                    queryObj[que.split("=")[0]] = que.split("=")[1]
+                });
+                return queryObj[index]
+
+                //}
+            }
+        }
+    }
+}
+
 /////////**********客户端user-Agent验证************/////
 /////////**********验证当前用户是通过什么浏览器或者什么类型的客户端访问该页面************/////
 ////***if(browser.versions.ios||browser.versions.iPhone||browser.versions.iPad){do what you want}*****/////
