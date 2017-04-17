@@ -142,6 +142,7 @@ function mStart(event) {
     this.moveTime = this.startTime = new Date().valueOf();
     this.speedPos = 0;
     this.speedCount = 0;
+    this.prevMoveChange = false;
     var startCallBack = this.startCallBack;
     if(typeof startCallBack == "function") {
         startCallBack.call(this);
@@ -199,9 +200,20 @@ function mMove(event) {
 
     event.preventDefault();
     var finalPos = prevMove + _dis;
-    if(finalPos >= 0 || finalPos <= -(this.moveDistance - this.parentNode.clientWidth)) {
-        _dis = _dis/2;
+    var pLen;
+    if (dir == "ud") {
+        pLen = this.parentNode.clientHeight;
+    } else if (dir == "lr") {
+        pLen = this.parentNode.clientWidth;
     }
+    if(finalPos >= 0 || finalPos <= -(this.moveDistance - pLen)) {
+        if(!this.prevMoveChange) {
+            prevMove = this.prevMove = this.prevMove + 3 * _dis / 4;
+            this.prevMoveChange = true;
+        }
+        _dis = _dis/4;
+    }
+
     if (dir == "ud") {
         translateDir.apply(this, ["ud", (prevMove + _dis)]);
     } else if (dir == "lr") {
@@ -242,17 +254,17 @@ function mEnd() {
         return;
     }
     this.endTime = new Date().valueOf();
-    if(this.endTime - this.moveTime > 20) return;
+    if(this.endTime - this.moveTime > 50) return;
     var speed;
     speed = Math.abs(this.speedPos * 3);
 
     //速度越快所用时间越短，但是移动路程更长
     //时间公式  time = v/31.1的平方根；
-    var needTime = Math.sqrt(speed/10);
+    var needTime = Math.sqrt(speed/31.1);
     needTime = needTime > 2 ? 2 : needTime;
 
     //距离公式  v*4000的平方
-    var needDis = Math.sqrt(speed * 3000);
+    var needDis = Math.sqrt(speed * 4000);
 
     //正向或者反向判断
     if(this.speedPos < 0) {
